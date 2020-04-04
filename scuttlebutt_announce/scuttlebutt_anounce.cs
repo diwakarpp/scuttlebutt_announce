@@ -7,8 +7,7 @@ using System.Text;
 
 namespace scuttlebutt_announce
 {
-    /// Crea una clase que anuncia la presencia
-    /// de forma periodica
+    /// A class that anounces a presence periodically
     public class PresenceAnnouncer
     {
         private int sleepTime;
@@ -16,16 +15,16 @@ namespace scuttlebutt_announce
         // Conection
         private Socket udpSocket;
         private IPAddress locapIp;
-        private IPAddress serverIp; 
+        private IPAddress serverIp;
         private int destinationPort;
         private IPEndPoint connectionPoint;
         private string publicKey;
         private string privateKey;
-    
+
 
         public PresenceAnnouncer (
-            int destinationPort, 
-            int sleepTime) 
+            int destinationPort,
+            int sleepTime)
         {
             this.sleepTime = sleepTime;
             this.handle = null;
@@ -40,12 +39,13 @@ namespace scuttlebutt_announce
             this.connectionPoint = new IPEndPoint(this.serverIp,
                                                   this.destinationPort);
 
+            // TODO: Scuttlebutt doesn't use RSA
             var rsa = new RSACryptoServiceProvider();
             this.publicKey = rsa.ToXmlString(false);
         }
 
         /// Starts the announcing loop
-        public void Run () 
+        public void Run ()
         {
             if (this.handle == null) {
                 this.handle = new Thread(Loop);
@@ -57,7 +57,7 @@ namespace scuttlebutt_announce
         /// Stops the announcing loop
         public void Stop ()
         {
-            if (this.handle != null) 
+            if (this.handle != null)
             {
                 this.handle.Abort();
                 this.handle = null;
@@ -66,7 +66,7 @@ namespace scuttlebutt_announce
             }
         }
 
-        void Loop() 
+        void Loop()
         {
             while(true)
             {
@@ -84,7 +84,7 @@ namespace scuttlebutt_announce
 
             Thread.Sleep(this.sleepTime);
         }
-        
+
         ~PresenceAnnouncer()
         {
             if (this.handle != null)
@@ -92,7 +92,7 @@ namespace scuttlebutt_announce
                 this.handle.Abort();
             }
         }
-        
+
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry( Dns.GetHostName() );
