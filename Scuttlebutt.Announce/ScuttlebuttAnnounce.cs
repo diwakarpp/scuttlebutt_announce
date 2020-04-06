@@ -48,7 +48,7 @@ namespace Scuttlebutt.Announce
             // Connection to server
             this.destinationPort = destinationPort;
             this.udpSocket = new Socket (AddressFamily.InterNetwork,
-                                         SocketType.Stream,
+                                         SocketType.Dgram,
                                          ProtocolType.Udp);
             this.locapIp  = IPAddress.Parse (GetLocalIPAddress());
             this.serverIp = IPAddress.Parse ("255.255.255.255");
