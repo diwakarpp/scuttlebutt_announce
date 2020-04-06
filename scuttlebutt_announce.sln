@@ -1,7 +1,6 @@
-
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scuttlebutt_announce", "scuttlebutt_announce\scuttlebutt_announce.csproj", "{CF6E36DD-464A-4DE6-A4F0-68CFF1DDBD6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScuttlebuttAnnounce", "Scuttlebutt.Announce\ScuttlebuttAnnounce.csproj", "{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,9 +8,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CF6E36DD-464A-4DE6-A4F0-68CFF1DDBD6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF6E36DD-464A-4DE6-A4F0-68CFF1DDBD6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF6E36DD-464A-4DE6-A4F0-68CFF1DDBD6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF6E36DD-464A-4DE6-A4F0-68CFF1DDBD6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

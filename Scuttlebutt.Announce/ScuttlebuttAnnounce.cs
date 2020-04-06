@@ -21,7 +21,7 @@ using System.Threading;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace scuttlebutt_announce
+namespace Scuttlebutt.Announce
 {
     /// A class that anounces a presence periodically
     public class PresenceAnnouncer
