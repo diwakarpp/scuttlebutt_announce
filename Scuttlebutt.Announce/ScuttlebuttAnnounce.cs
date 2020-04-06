@@ -36,6 +36,7 @@ namespace Scuttlebutt.Announce
         private IPEndPoint connectionPoint;
         private string publicKey;
         private string privateKey;
+        private CancellationTokenSource cancelTokenSrc;
 
 
         public PresenceAnnouncer (
@@ -64,7 +65,8 @@ namespace Scuttlebutt.Announce
         public void Run ()
         {
             if (this.handle == null) {
-                this.handle = new Thread(Loop);
+                this.cancelTokenSrc = new CancellationTokenSource();
+                this.handle = new Thread(() => Loop(cancelTokenSrc.Token));
             } else {
                 throw new InvalidOperationException("Announce loop already started");
             }
@@ -75,17 +77,22 @@ namespace Scuttlebutt.Announce
         {
             if (this.handle != null)
             {
-                this.handle.Abort();
+                this.cancelTokenSrc.Cancel();
                 this.handle = null;
+                this.cancelTokenSrc = null;
             } else {
                 throw new InvalidOperationException("Announce loop not started");
             }
         }
 
-        void Loop()
+        void Loop(CancellationToken cancelToken)
         {
             while(true)
             {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 InnerLoop();
             }
         }
@@ -105,7 +112,7 @@ namespace Scuttlebutt.Announce
         {
             if (this.handle != null)
             {
-                this.handle.Abort();
+                this.Stop();
             }
         }
 
