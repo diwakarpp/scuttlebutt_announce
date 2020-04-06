@@ -2,6 +2,8 @@
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScuttlebuttAnnounce", "Scuttlebutt.Announce\ScuttlebuttAnnounce.csproj", "{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scuttlebutt.Announce.Tests", "Scuttlebutt.Announce.Tests\Scuttlebutt.Announce.Tests.csproj", "{FBCEDB2C-49BE-4FEA-AE71-4DD5E7A06DA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38BD4ECB-7B57-4ECD-8AF0-B3DD9A77F4FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBCEDB2C-49BE-4FEA-AE71-4DD5E7A06DA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBCEDB2C-49BE-4FEA-AE71-4DD5E7A06DA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBCEDB2C-49BE-4FEA-AE71-4DD5E7A06DA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBCEDB2C-49BE-4FEA-AE71-4DD5E7A06DA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
