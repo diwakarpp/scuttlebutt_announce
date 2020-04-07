@@ -1,15 +1,29 @@
 using System;
 using Xunit;
 using Scuttlebutt.Announce;
+using System.Net;
 
 namespace Scuttlebutt.Tests.Announce
 {
     public class ScuttlebuttAnnounce
     {
+        static private PresenceAnnouncer BuildAnnouncer()
+        {
+            var localAddr = IPAddress.Parse("127.0.0.1");
+            var broadAddr = IPAddress.Parse("127.255.255.255");
+
+            var ret = new PresenceAnnouncer(8008,
+                                            localAddr,
+                                            broadAddr,
+                                            1);
+
+            return ret;
+        }
+
         [Fact]
         public void Builds()
         {
-            var ex = Record.Exception(() => new PresenceAnnouncer(8008, 1));
+            var ex = Record.Exception(() => BuildAnnouncer());
 
             Assert.Null(ex);
         }
@@ -17,7 +31,7 @@ namespace Scuttlebutt.Tests.Announce
         [Fact]
         public void Runs()
         {
-            var announcer = new PresenceAnnouncer(8008, 1);
+            var announcer = BuildAnnouncer();
 
             var ex = Record.Exception(() => announcer.Run());
 
@@ -27,7 +41,7 @@ namespace Scuttlebutt.Tests.Announce
         [Fact]
         public void DoesNotRunTwice()
         {
-            var announcer = new PresenceAnnouncer(8008, 1);
+            var announcer = BuildAnnouncer();
 
             announcer.Run();
             var ex = Assert.Throws<InvalidOperationException>(() => announcer.Run());
@@ -38,7 +52,7 @@ namespace Scuttlebutt.Tests.Announce
         [Fact]
         public void Stops()
         {
-            var announcer = new PresenceAnnouncer(8008, 1);
+            var announcer = BuildAnnouncer();
             announcer.Run();
 
             var ex = Record.Exception(() => announcer.Stop());
@@ -49,7 +63,7 @@ namespace Scuttlebutt.Tests.Announce
         [Fact]
         public void DoesNotStopTwice()
         {
-            var announcer = new PresenceAnnouncer(8008, 1);
+            var announcer = BuildAnnouncer();
             announcer.Run();
 
             announcer.Stop();
@@ -61,7 +75,7 @@ namespace Scuttlebutt.Tests.Announce
         [Fact]
         public void DoesNotStopBeforeStarting()
         {
-            var announcer = new PresenceAnnouncer(8008, 1);
+            var announcer = BuildAnnouncer();
 
             var ex = Assert.Throws<InvalidOperationException>(() => announcer.Stop());
 

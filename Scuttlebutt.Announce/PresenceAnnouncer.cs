@@ -17,7 +17,6 @@
 using System;
 using System.Net.Sockets;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Security.Cryptography;
 using System.Text;
@@ -31,30 +30,31 @@ namespace Scuttlebutt.Announce
         private Thread handle;
         // Conection
         private Socket udpSocket;
-        private IPAddress locapIp;
-        private IPAddress serverIp;
+        private IPAddress localIp;
+        private IPAddress destIp;
         private int destinationPort;
         private IPEndPoint connectionPoint;
         private string publicKey;
-        private string privateKey;
         private CancellationTokenSource cancelTokenSrc;
 
-
         public PresenceAnnouncer (
-            int destinationPort,
+            int port,
+            IPAddress localIp,
+            IPAddress destIp,
             int sleepTime)
         {
             this.sleepTime = sleepTime;
             this.handle = null;
 
             // Connection to server
-            this.destinationPort = destinationPort;
+            this.destinationPort = port;
             this.udpSocket = new Socket (AddressFamily.InterNetwork,
                                          SocketType.Dgram,
                                          ProtocolType.Udp);
-            this.locapIp  = IPAddress.Parse (GetLocalIPAddress());
-            this.serverIp = IPAddress.Parse ("255.255.255.255");
-            this.connectionPoint = new IPEndPoint(this.serverIp,
+            this.localIp = localIp;
+            this.destIp  = destIp;
+
+            this.connectionPoint = new IPEndPoint(this.destIp,
                                                   this.destinationPort);
 
             // TODO: Scuttlebutt doesn't use RSA
@@ -103,7 +103,7 @@ namespace Scuttlebutt.Announce
 
         void LoopBody()
         {
-            String destinationMsg = "net:" + locapIp.ToString() + ":" + destinationPort + "~shs:" + publicKey;
+            String destinationMsg = "net:" + localIp.ToString() + ":" + destinationPort + "~shs:" + publicKey;
             // Preparation to send the message
             byte[] bufferedMsg = Encoding.ASCII.GetBytes(destinationMsg);
             // Send message
@@ -118,38 +118,6 @@ namespace Scuttlebutt.Announce
             {
                 this.Stop();
             }
-        }
-
-        // TODO: Take into account network mask
-        static IPAddress GetLocalBroadcastAddress()
-        {
-            var localAddr = IPAddress
-                .Parse(GetLocalIPAddress())
-                .GetAddressBytes();
-
-            localAddr[3] = 0xFF;
-
-            var ret = new IPAddress(localAddr);
-
-            return ret;
-        }
-
-        public static string GetLocalIPAddress()
-        {
-            foreach ( var netInt in NetworkInterface.GetAllNetworkInterfaces() )
-            {
-                foreach( var ip in netInt.GetIPProperties().UnicastAddresses )
-                {
-                    if ( ip.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ip.Address) )
-                    {
-                        var addr = ip.Address.ToString();
-                        return addr;
-                    }
-                }
-
-            }
-
-            throw new Exception("No network adapters with an IPv4 address in the system!");
         }
     }
 }
