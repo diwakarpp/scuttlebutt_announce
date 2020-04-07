@@ -17,6 +17,7 @@
 using System;
 using System.Net.Sockets;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Security.Cryptography;
 using System.Text;
@@ -119,16 +120,35 @@ namespace Scuttlebutt.Announce
             }
         }
 
+        // TODO: Take into account network mask
+        static IPAddress GetLocalBroadcastAddress()
+        {
+            var localAddr = IPAddress
+                .Parse(GetLocalIPAddress())
+                .GetAddressBytes();
+
+            localAddr[3] = 0xFF;
+
+            var ret = new IPAddress(localAddr);
+
+            return ret;
+        }
+
         public static string GetLocalIPAddress()
         {
-            var host = Dns.GetHostEntry( Dns.GetHostName() );
-            foreach ( var ip in host.AddressList )
+            foreach ( var netInt in NetworkInterface.GetAllNetworkInterfaces() )
             {
-                if ( ip.AddressFamily == AddressFamily.InterNetwork )
+                foreach( var ip in netInt.GetIPProperties().UnicastAddresses )
                 {
-                    return ip.ToString();
+                    if ( ip.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ip.Address) )
+                    {
+                        var addr = ip.Address.ToString();
+                        return addr;
+                    }
                 }
+
             }
+
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
     }
