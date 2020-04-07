@@ -93,11 +93,11 @@ namespace Scuttlebutt.Announce
                 {
                     return;
                 }
-                InnerLoop();
+                LoopBody();
             }
         }
 
-        void InnerLoop()
+        void LoopBody()
         {
             String destinationMsg = "net:" + locapIp.ToString() + ":" + destinationPort + "~shs:" + publicKey;
             // Preparation to send the message
