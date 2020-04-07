@@ -66,7 +66,9 @@ namespace Scuttlebutt.Announce
         {
             if (this.handle == null) {
                 this.cancelTokenSrc = new CancellationTokenSource();
+                this.udpSocket.Connect(connectionPoint);
                 this.handle = new Thread(() => Loop(cancelTokenSrc.Token));
+                this.handle.Start();
             } else {
                 throw new InvalidOperationException("Announce loop already started");
             }
@@ -78,6 +80,7 @@ namespace Scuttlebutt.Announce
             if (this.handle != null)
             {
                 this.cancelTokenSrc.Cancel();
+                this.udpSocket.Disconnect(true);
                 this.handle = null;
                 this.cancelTokenSrc = null;
             } else {
