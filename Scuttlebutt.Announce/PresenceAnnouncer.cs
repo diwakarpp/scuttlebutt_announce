@@ -18,16 +18,21 @@ using System;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+
 namespace Scuttlebutt.Announce
 {
-    /// A class that anounces a presence periodically
-    public class PresenceAnnouncer
+    /// <summary>
+    ///   Announces a presence periodically
+    /// </summary>
+    public class PresenceAnnouncer : BackgroundService
     {
         private int sleepTime;
-        private Thread handle;
         // Conection
         private Socket udpSocket;
         private IPAddress localIp;
@@ -35,16 +40,21 @@ namespace Scuttlebutt.Announce
         private int destinationPort;
         private IPEndPoint connectionPoint;
         private string publicKey;
-        private CancellationTokenSource cancelTokenSrc;
+
+        // Logging
+        private readonly ILogger<PresenceAnnouncer> _logger;
 
         public PresenceAnnouncer (
             int port,
             IPAddress localIp,
             IPAddress destIp,
-            int sleepTime)
+            int sleepTime,
+            ILogger<PresenceAnnouncer> logger
+            )
         {
+            this._logger = logger;
+
             this.sleepTime = sleepTime;
-            this.handle = null;
 
             // Connection to server
             this.destinationPort = port;
@@ -62,62 +72,44 @@ namespace Scuttlebutt.Announce
             this.publicKey = rsa.ToXmlString(false);
         }
 
-        /// Starts the announcing loop
-        public void Run ()
+        /// <summary>
+        ///   Stops the announcing loop
+        /// </summary>
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
-            if (this.handle == null) {
-                this.cancelTokenSrc = new CancellationTokenSource();
-                this.udpSocket.Connect(connectionPoint);
-                this.handle = new Thread(() => Loop(cancelTokenSrc.Token));
-                this.handle.Start();
-            } else {
-                throw new InvalidOperationException("Announce loop already started");
-            }
+            var e = new SocketAsyncEventArgs();
+            this.udpSocket.DisconnectAsync(e);
+
+            return base.StopAsync(cancellationToken);
         }
 
-        /// Stops the announcing loop
-        public void Stop ()
+        /// <summary>
+        ///   Runs the LoopBody while the service is not canceled
+        /// </summary>
+        /// <param name="cancelToken">Token that signals that the service should be stopped</param>
+        protected override async Task ExecuteAsync(CancellationToken cancelToken)
         {
-            if (this.handle != null)
+            await this.udpSocket.ConnectAsync(connectionPoint);
+
+            while(!cancelToken.IsCancellationRequested)
             {
-                this.cancelTokenSrc.Cancel();
-                this.udpSocket.Disconnect(true);
-                this.handle = null;
-                this.cancelTokenSrc = null;
-            } else {
-                throw new InvalidOperationException("Announce loop not started");
+                var message = CraftMessage(localIp, destinationPort, publicKey);
+
+                // Send message
+                udpSocket.SendTo(message, connectionPoint);
+                await Task.Delay(this.sleepTime, cancelToken);
+
+                _logger.LogInformation("Broadcasted presence: {message}", message);
             }
         }
 
-        void Loop(CancellationToken cancelToken)
-        {
-            while(true)
-            {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
-                LoopBody();
-            }
-        }
-
-        void LoopBody()
+        private static byte[] CraftMessage(IPAddress localIp, int destinationPort, string publicKey)
         {
             String destinationMsg = "net:" + localIp.ToString() + ":" + destinationPort + "~shs:" + publicKey;
             // Preparation to send the message
             byte[] bufferedMsg = Encoding.ASCII.GetBytes(destinationMsg);
-            // Send message
-            udpSocket.SendTo(bufferedMsg, connectionPoint);
 
-            Thread.Sleep(this.sleepTime);
-        }
-
-        ~PresenceAnnouncer()
-        {
-            if (this.handle != null)
-            {
-                this.Stop();
-            }
+            return bufferedMsg;
         }
     }
 }

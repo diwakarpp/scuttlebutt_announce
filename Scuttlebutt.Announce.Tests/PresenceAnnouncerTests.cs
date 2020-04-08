@@ -1,7 +1,11 @@
 using System;
+using System.Net;
+using System.Threading;
+
+using Microsoft.Extensions.Logging;
+
 using Xunit;
 using Scuttlebutt.Announce;
-using System.Net;
 
 namespace Scuttlebutt.Tests.Announce
 {
@@ -12,10 +16,14 @@ namespace Scuttlebutt.Tests.Announce
             var localAddr = IPAddress.Parse("127.0.0.1");
             var broadAddr = IPAddress.Parse("127.255.255.255");
 
+            var logger = new NullLoggerFactory()
+                .CreateLogger<PresenceAnnouncer>();
+
             var ret = new PresenceAnnouncer(8008,
                                             localAddr,
                                             broadAddr,
-                                            1);
+                                            1,
+                                            logger);
 
             return ret;
         }
@@ -29,57 +37,29 @@ namespace Scuttlebutt.Tests.Announce
         }
 
         [Fact]
-        public void Runs()
+        public async void Runs()
         {
             var announcer = BuildAnnouncer();
 
-            var ex = Record.Exception(() => announcer.Run());
+            var canceller = new CancellationTokenSource();
+
+            var ex = await Record.ExceptionAsync(() => announcer.StartAsync(canceller.Token));
 
             Assert.Null(ex);
         }
 
         [Fact]
-        public void DoesNotRunTwice()
+        public async void Stops()
         {
             var announcer = BuildAnnouncer();
 
-            announcer.Run();
-            var ex = Assert.Throws<InvalidOperationException>(() => announcer.Run());
+            var canceller = new CancellationTokenSource();
 
-            Assert.Equal("Announce loop already started", ex.Message);
-        }
+            await announcer.StartAsync(canceller.Token);
 
-        [Fact]
-        public void Stops()
-        {
-            var announcer = BuildAnnouncer();
-            announcer.Run();
-
-            var ex = Record.Exception(() => announcer.Stop());
+            var ex = Record.ExceptionAsync(() => announcer.StopAsync(canceller.Token));
 
             Assert.Null(ex);
-        }
-
-        [Fact]
-        public void DoesNotStopTwice()
-        {
-            var announcer = BuildAnnouncer();
-            announcer.Run();
-
-            announcer.Stop();
-            var ex = Assert.Throws<InvalidOperationException>(() => announcer.Stop());
-
-            Assert.Equal("Announce loop not started", ex.Message);
-        }
-
-        [Fact]
-        public void DoesNotStopBeforeStarting()
-        {
-            var announcer = BuildAnnouncer();
-
-            var ex = Assert.Throws<InvalidOperationException>(() => announcer.Stop());
-
-            Assert.Equal("Announce loop not started", ex.Message);
         }
     }
 }
