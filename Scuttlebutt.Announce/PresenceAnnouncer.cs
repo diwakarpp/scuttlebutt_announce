@@ -51,6 +51,7 @@ namespace Scuttlebutt.Announce
             this.udpSocket = new Socket (AddressFamily.InterNetwork,
                                          SocketType.Dgram,
                                          ProtocolType.Udp);
+            this.udpSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
             this.localIp = localIp;
             this.destIp  = destIp;
 
