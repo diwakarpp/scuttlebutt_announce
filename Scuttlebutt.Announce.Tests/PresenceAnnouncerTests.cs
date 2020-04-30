@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using Scuttlebutt.Announce;
 using System.Net;
+using Sodium;
 
 namespace Scuttlebutt.Tests.Announce
 {
@@ -12,10 +13,15 @@ namespace Scuttlebutt.Tests.Announce
             var localAddr = IPAddress.Parse("127.0.0.1");
             var broadAddr = IPAddress.Parse("127.255.255.255");
 
-            var ret = new PresenceAnnouncer(8008,
-                                            localAddr,
-                                            broadAddr,
-                                            1);
+            var keypair = PublicKeyAuth.GenerateKeyPair();
+
+            var ret = new PresenceAnnouncer(
+                8008,
+                localAddr,
+                broadAddr,
+                1,
+                keypair.PublicKey
+            );
 
             return ret;
         }

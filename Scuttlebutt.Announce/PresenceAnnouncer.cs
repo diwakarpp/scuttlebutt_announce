@@ -41,7 +41,9 @@ namespace Scuttlebutt.Announce
             int port,
             IPAddress localIp,
             IPAddress destIp,
-            int sleepTime)
+            int sleepTime,
+            byte[] pubkey
+        )
         {
             this.sleepTime = sleepTime;
             this.handle = null;
@@ -58,9 +60,7 @@ namespace Scuttlebutt.Announce
             this.connectionPoint = new IPEndPoint(this.destIp,
                                                   this.destinationPort);
 
-            // TODO: Scuttlebutt doesn't use RSA
-            var rsa = new RSACryptoServiceProvider();
-            this.publicKey = rsa.ToXmlString(false);
+            this.publicKey = Convert.ToBase64String(pubkey, 0, pubkey.Length, Base64FormattingOptions.None);
         }
 
         /// Starts the announcing loop
